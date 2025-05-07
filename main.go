@@ -13,14 +13,13 @@ import (
 type Result struct {
 	Id        int     `json:"id"` //? this tag tells the unmarshal where to find the data for "Id" from our JSON source
 	Name      string  `json:"name"`
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 	TimeZone  string  `json:"timezone"`
 }
 
 type GeocodeResponse struct {
-	Results          []Result `json:"results"`
-	GenerationTimeMS float32  `json:"generationtime_ms"`
+	Results []Result `json:"results"`
 }
 
 func main() {
@@ -40,9 +39,9 @@ func main() {
 
 	fmt.Println(zipOrCity)
 
-	url := urlgen.Generate(zipOrCity)
+	url := urlgen.GenerateGeocodeURL(zipOrCity)
 
-	fmt.Println("the url is:", url)
+	fmt.Printf("Looking up %s...\n", zipOrCity)
 
 	resp, err := http.Get(url)
 
@@ -50,6 +49,8 @@ func main() {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
+
+	fmt.Println("City found!")
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -61,7 +62,7 @@ func main() {
 
 	var resJson GeocodeResponse
 
-	// TODO figure out why this can't be err
+	// ? Since we already defined err in this scope, we'll shadow (overwrite it) here
 	err = json.Unmarshal(body, &resJson) // basically JSON.parse() lol
 
 	if err != nil {
@@ -69,5 +70,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(resJson)
+	if len(resJson.Results) < 1 {
+		fmt.Println("Error: no results found for", zipOrCity)
+		os.Exit(1)
+	}
+
+	fmt.Println("Geocode results:", resJson)
+
+	url = urlgen.GenerateWeatherURL(resJson.Results[0].Latitude, resJson.Results[0].Longitude, resJson.Results[0].TimeZone)
+
+	fmt.Println("Weather URL is:", url)
 }

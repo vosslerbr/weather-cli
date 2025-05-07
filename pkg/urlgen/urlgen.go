@@ -1,9 +1,41 @@
 package urlgen
 
-import "fmt"
+import (
+	"fmt"
+	"net/url"
+	"strconv"
+)
 
-func Generate(zip string) string {
-	url := fmt.Sprintf("https://geocoding-api.open-meteo.com/v1/search?name=%s&count=10&language=en&format=json", zip)
+func GenerateGeocodeURL(zip string) string {
+	baseURL := "https://geocoding-api.open-meteo.com/v1/search"
 
-	return url
+	params := url.Values{}
+	params.Add("name", zip)
+	params.Add("count", "10")
+	params.Add("language", "en")
+	params.Add("format", "json")
+
+	encodedParams := params.Encode()
+
+	fullURL := fmt.Sprintf("%s?%s", baseURL, encodedParams)
+
+	return fullURL
+}
+
+func GenerateWeatherURL(lat float64, long float64, timezone string) string {
+	baseURL := "https://api.open-meteo.com/v1/forecast"
+
+	params := url.Values{}
+	params.Add("latitude", strconv.FormatFloat(lat, 'f', 6, 32))
+	params.Add("longitude", strconv.FormatFloat(long, 'f', 6, 32))
+	params.Add("daily", "weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset")
+	params.Add("models", "gfs_seamless")
+	params.Add("timezone", timezone)
+	params.Add("temperature_unit", "fahrenheit")
+
+	encodedParams := params.Encode()
+
+	fullURL := fmt.Sprintf("%s?%s", baseURL, encodedParams)
+
+	return fullURL
 }
