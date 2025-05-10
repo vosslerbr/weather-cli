@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"flag"
 
 	"weather-cli/internal/display"
 	"weather-cli/internal/geocode"
@@ -11,22 +10,14 @@ import (
 
 // TODO should really only serve as entry point and call other fns based on args
 func main() {
-	// args will ALWAYS exist (first one is program name)
-	args := os.Args
+	locationPtr := flag.String("location", "10001", "a valid ZIP or postal code")
 
-	// we want to make sure the user passes exactly 1 arg
-	if len(args) != 2 {
-		fmt.Println("Error: please input a single ZIP code, or a city name (wrap multi-word city names with quotes).")
+	flag.Parse()
 
-		os.Exit(1)
-	}
+	geocodeResults := geocode.GetGeocodeResults(locationPtr)
 
-	zipOrCity := args[1]
-
-	fmt.Println(zipOrCity)
-	geocodeResults := geocode.GetGeocodeResults(zipOrCity)
-
-	weatherResults := weather.GetWeather(geocodeResults.Latitude, geocodeResults.Longitude, geocodeResults.TimeZone, geocodeResults.Name)
+	weatherResults := weather.GetWeather(geocodeResults)
 
 	display.ShowResults(weatherResults)
+
 }

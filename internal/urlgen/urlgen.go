@@ -6,11 +6,11 @@ import (
 	"strconv"
 )
 
-func GenerateGeocodeURL(zip string) string {
+func GenerateGeocodeURL(zipOrCity *string) string {
 	baseURL := "https://geocoding-api.open-meteo.com/v1/search"
 
 	params := url.Values{}
-	params.Add("name", zip)
+	params.Add("name", *zipOrCity)
 	params.Add("count", "10")
 	params.Add("language", "en")
 	params.Add("format", "json")

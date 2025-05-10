@@ -10,10 +10,8 @@ import (
 	"weather-cli/internal/urlgen"
 )
 
-func GetGeocodeResults(zipOrCity string) GeocodeResult {
+func GetGeocodeResults(zipOrCity *string) GeocodeResult {
 	url := urlgen.GenerateGeocodeURL(zipOrCity)
-
-	fmt.Printf("Looking up %s...\n", zipOrCity)
 
 	resp, err := http.Get(url)
 
@@ -21,8 +19,6 @@ func GetGeocodeResults(zipOrCity string) GeocodeResult {
 		fmt.Println("Error:", err)
 		os.Exit(1)
 	}
-
-	fmt.Println("City found!")
 
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)

@@ -7,11 +7,12 @@ import (
 	"net/http"
 	"os"
 
+	"weather-cli/internal/geocode"
 	"weather-cli/internal/urlgen"
 )
 
-func GetWeather(latitude float64, longitude float64, timezone string, locationName string) WeatherResult {
-	url := urlgen.GenerateWeatherURL(latitude, latitude, timezone)
+func GetWeather(geocodeData geocode.GeocodeResult) WeatherResult {
+	url := urlgen.GenerateWeatherURL(geocodeData.Latitude, geocodeData.Longitude, geocodeData.TimeZone)
 
 	// fmt.Println("Weather URL is:", url)
 
@@ -40,7 +41,7 @@ func GetWeather(latitude float64, longitude float64, timezone string, locationNa
 		os.Exit(1)
 	}
 
-	fmt.Printf("Weather results found for %s!\n", locationName)
+	fmt.Printf("Weather results found for %s:\n", geocodeData.Name)
 
 	return weatherResJSON
 }
